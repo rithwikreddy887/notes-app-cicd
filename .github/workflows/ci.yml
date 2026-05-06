@@ -1,0 +1,51 @@
+name: Notes App CI Pipeline
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      # Stage 1: Install Dependencies
+      - name: Install auth dependencies
+        working-directory: auth
+        run: npm ci
+
+      - name: Install backend dependencies
+        working-directory: backend
+        run: npm ci
+
+      # Stage 2: Basic Tests 
+      - name: Test auth service syntax
+        working-directory: auth
+        run: node --check server.js
+
+      - name: Test backend service syntax
+        working-directory: backend
+        run: node --check server.js
+
+      - name: Test frontend file exists
+        run: test -f frontend/index.html
+
+      # Stage 3: Docker Build 
+      - name: Build auth Docker image
+        run: docker build -t notes-auth:test ./auth
+
+      - name: Build backend Docker image
+        run: docker build -t notes-backend:test ./backend
+
+      - name: Build frontend Docker image
+        run: docker build -t notes-frontend:test ./frontend

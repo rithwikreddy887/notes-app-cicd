@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Notes App</title>
+  <style>
+    body {
+      font-family: Arial;
+      background: #f4f4f4;
+      display: flex;
+      justify-content: center;
+      padding-top: 50px;
+    }
+
+    .container {
+      width: 400px;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px gray;
+    }
+
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin: 5px 0;
+    }
+
+    button {
+      background: #007BFF;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    .note {
+      background: #e9ecef;
+      margin: 5px 0;
+      padding: 10px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .note-content {
+      display: none;
+      margin-top: 5px;
+      color: #333;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    h2, h3 {
+      text-align: center;
+    }
+
+    .toggle {
+      text-align: center;
+      color: blue;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <h2 id="title">Login</h2>
+
+  <!-- Auth Section -->
+  <div id="authSection">
+    <input id="username" placeholder="Username">
+    <input id="password" type="password" placeholder="Password">
+    <button onclick="handleAuth()">Submit</button>
+    <div class="toggle" onclick="toggleMode()">Switch to Register</div>
+  </div>
+
+  <!-- Notes Section -->
+  <div id="notesSection" class="hidden">
+
+    <h3>Welcome <span id="userDisplay"></span></h3>
+
+    <input id="noteTitle" placeholder="Note Title">
+    <input id="noteText" placeholder="Note Content">
+    <button onclick="addNote()">Add Note</button>
+
+    <h3>Your Notes</h3>
+    <div id="notes"></div>
+
+    <button onclick="logout()">Logout</button>
+  </div>
+
+</div>
+
+<script>
+let isLogin = true;
+let currentUser = null;
+
+const AUTH = "/auth";
+const BACKEND = "/api";
+
+function toggleMode() {
+  isLogin = !isLogin;
+  document.getElementById("title").innerText = isLogin ? "Login" : "Register";
+  document.querySelector(".toggle").innerText =
+    isLogin ? "Switch to Register" : "Switch to Login";
+}
+
+async function handleAuth() {
+  const username = document.getElementById("username").value;
+  const password = document.getElementById("password").value;
+
+  const url = isLogin ? "/login" : "/register";
+
+  const res = await fetch(AUTH + url, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ username, password })
+  });
+
+  const data = await res.json();
+
+  if (res.ok) {
+    if (isLogin) {
+      currentUser = username;
+      showNotes();
+    } else {
+      alert("Registered! Now login.");
+      toggleMode();
+    }
+  } else {
+    alert(data.message);
+  }
+}
+
+function showNotes() {
+  document.getElementById("authSection").classList.add("hidden");
+  document.getElementById("notesSection").classList.remove("hidden");
+  document.getElementById("userDisplay").innerText = currentUser;
+  loadNotes();
+}
+
+function logout() {
+  currentUser = null;
+  document.getElementById("authSection").classList.remove("hidden");
+  document.getElementById("notesSection").classList.add("hidden");
+}
+
+async function addNote() {
+  const title = document.getElementById("noteTitle").value;
+  const text = document.getElementById("noteText").value;
+
+  await fetch(BACKEND + "/notes", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ title, text, user: currentUser })
+  });
+
+  loadNotes();
+}
+
+async function loadNotes() {
+  const res = await fetch(BACKEND + "/notes?user=" + currentUser);
+  const data = await res.json();
+
+  const notesDiv = document.getElementById("notes");
+  notesDiv.innerHTML = "";
+
+  data.forEach(n => {
+    const div = document.createElement("div");
+    div.className = "note";
+
+    const title = document.createElement("div");
+    title.innerText = n.title;
+
+    const content = document.createElement("div");
+    content.className = "note-content";
+    content.innerText = n.text;
+
+    div.onclick = () => {
+      content.style.display =
+        content.style.display === "none" ? "block" : "none";
+    };
+
+    div.appendChild(title);
+    div.appendChild(content);
+
+    notesDiv.appendChild(div);
+  });
+}
+</script>
+
+</body>
+</html>
