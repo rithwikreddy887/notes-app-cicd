@@ -54,6 +54,10 @@ app.post("/notes", async (req, res) => {
   });
 });
 
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`Backend running on port ${PORT}`);
-});
+if (require.main === module) {
+  app.listen(PORT, "0.0.0.0", () => {
+    console.log(`Backend running on port ${PORT}`);
+  });
+}
+
+module.exports = app;
