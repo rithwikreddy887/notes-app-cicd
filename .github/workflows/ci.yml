@@ -2,9 +2,12 @@ name: Notes App CI Pipeline
 
 on:
   push:
-    branches: ["main"]
+    branches:
+      - main
+
   pull_request:
-    branches: ["main"]
+    branches:
+      - main
 
 jobs:
   ci:
@@ -19,7 +22,7 @@ jobs:
         with:
           node-version: "20"
 
-      # Stage 1: Install Dependencies
+      # ---------- Install Dependencies ----------
       - name: Install auth dependencies
         working-directory: auth
         run: npm ci
@@ -28,19 +31,20 @@ jobs:
         working-directory: backend
         run: npm ci
 
-      # Stage 2: Basic Tests 
-      - name: Test auth service syntax
+      # ---------- Run Unit Tests ----------
+      - name: Run auth unit tests
         working-directory: auth
-        run: node --check server.js
+        run: npm test
 
-      - name: Test backend service syntax
+      - name: Run backend unit tests
         working-directory: backend
-        run: node --check server.js
+        run: npm test
 
+      # ---------- Frontend Validation ----------
       - name: Test frontend file exists
         run: test -f frontend/index.html
 
-      # Stage 3: Docker Build 
+      # ---------- Docker Builds ----------
       - name: Build auth Docker image
         run: docker build -t notes-auth:test ./auth
 

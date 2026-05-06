@@ -1,0 +1,18 @@
+# Node.js
+node_modules/
+
+# Test coverage
+coverage/
+
+# Environment files
+.env
+.env.*
+
+# Logs
+npm-debug.log
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
