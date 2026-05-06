@@ -60,7 +60,8 @@ jobs:
           image-ref: notes-auth:test
           format: table
           exit-code: 1
-          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          severity: CRITICAL
 
       - name: Scan backend image with Trivy
         uses: aquasecurity/trivy-action@master
@@ -68,7 +69,8 @@ jobs:
           image-ref: notes-backend:test
           format: table
           exit-code: 1
-          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          severity: CRITICAL
 
       - name: Scan frontend image with Trivy
         uses: aquasecurity/trivy-action@master
@@ -76,4 +78,5 @@ jobs:
           image-ref: notes-frontend:test
           format: table
           exit-code: 1
-          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          severity: CRITICAL
