@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "notes-app.fullname" . }}-frontend-service
+  labels:
+    app: frontend
+    {{- include "notes-app.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  selector:
+    app: frontend
+  ports:
+  - port: {{ .Values.service.frontend.port }}
+    targetPort: {{ .Values.service.frontend.targetPort }}

@@ -1,0 +1,27 @@
+# 🔐 Secrets
+values-secret.yaml
+*.secret.yaml
+.env
+.env.*
+
+# 🟢 Node.js
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# 🐍 Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+
+# 🐳 Docker (optional)
+*.tar
+
+# 🧪 OS / Editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "notes-app.fullname" . }}-backend-deploy
+  labels:
+    app: backend
+    {{- include "notes-app.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount.backend }}
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+      - name: backend
+        image: "{{ .Values.image.backend.repository }}:{{ .Values.image.backend.tag }}"
+        imagePullPolicy: {{ .Values.image.backend.pullPolicy }}
+        ports:
+        - containerPort: 3000
+        readinessProbe:
+          tcpSocket:
+            port: 3000
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 3
+        livenessProbe:
+          tcpSocket:
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 15
+          timeoutSeconds: 3
+          failureThreshold: 5
+        resources:
+          requests:
+            cpu: "{{ .Values.resources.backend.requests.cpu }}"
+            memory: "{{ .Values.resources.backend.requests.memory }}"
+          limits:
+            cpu: "{{ .Values.resources.backend.limits.cpu }}"
+            memory: "{{ .Values.resources.backend.limits.memory }}"
+        envFrom:
+        - configMapRef:
+            name: {{ include "notes-app.fullname" . }}-config
+        - secretRef:
+            name: {{ include "notes-app.fullname" . }}-secret

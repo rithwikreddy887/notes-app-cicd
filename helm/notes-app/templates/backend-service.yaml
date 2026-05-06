@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "notes-app.fullname" . }}-backend-service
+  labels:
+    app: backend
+    {{- include "notes-app.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  selector:
+    app: backend
+  ports:
+  - port: {{ .Values.service.backend.port }}
+    targetPort: {{ .Values.service.backend.targetPort }}

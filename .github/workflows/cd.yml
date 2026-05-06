@@ -1,0 +1,21 @@
+name: Notes App CD Pipeline
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Verify kubectl access
+        run: kubectl get nodes
+
+      - name: Verify Helm
+        run: helm version
+
+      - name: Deploy Notes App using Helm
+        run: helm upgrade --install notes-app ./helm/notes-app

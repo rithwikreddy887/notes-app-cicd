@@ -1,0 +1,22 @@
+{{- if .Values.hpa.auth.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "notes-app.fullname" . }}-auth-hpa
+  labels:
+    {{- include "notes-app.labels" . | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "notes-app.fullname" . }}-auth-deploy
+  minReplicas: {{ .Values.hpa.auth.minReplicas }}
+  maxReplicas: {{ .Values.hpa.auth.maxReplicas }}
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: {{ .Values.hpa.auth.targetCPUUtilizationPercentage }}
+{{- end }}

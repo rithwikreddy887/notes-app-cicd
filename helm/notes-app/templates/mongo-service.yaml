@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "notes-app.fullname" . }}-mongo-service
+  labels:
+    app: mongo
+    {{- include "notes-app.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  selector:
+    app: mongo
+  ports:
+  - port: {{ .Values.service.mongo.port }}
+    targetPort: {{ .Values.service.mongo.targetPort }}

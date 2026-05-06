@@ -1,0 +1,106 @@
+fullnameOverride: ""
+nameOverride: ""
+
+image:
+  auth:
+    repository: rithwik887/notes-auth
+    tag: "4.0"
+    pullPolicy: IfNotPresent
+  backend:
+    repository: rithwik887/notes-backend
+    tag: "4.0"
+    pullPolicy: IfNotPresent
+  frontend:
+    repository: rithwik887/notes-frontend
+    tag: "1.0"
+    pullPolicy: IfNotPresent
+  mongo:
+    repository: mongo
+    tag: "6"
+    pullPolicy: IfNotPresent
+
+replicaCount:
+  auth: 1
+  backend: 2
+  frontend: 2
+
+service:
+  type: ClusterIP
+  auth:
+    port: 80
+    targetPort: 4000
+  backend:
+    port: 80
+    targetPort: 3000
+  frontend:
+    port: 80
+    targetPort: 80
+  mongo:
+    port: 27017
+    targetPort: 27017
+
+resources:
+  auth:
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+    limits:
+      cpu: "300m"
+      memory: "256Mi"
+  backend:
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+    limits:
+      cpu: "500m"
+      memory: "256Mi"
+  frontend:
+    requests:
+      cpu: "50m"
+      memory: "64Mi"
+    limits:
+      cpu: "200m"
+      memory: "128Mi"
+
+mongodb:
+  env:
+    rootUsername: ""
+    rootPassword: ""
+  pvc:
+    enabled: true
+    storage: 1Gi
+
+config:
+  mongoHost: ""
+  mongoPort: "27017"
+  mongoDB: "notesapp"
+  nodeEnv: "production"
+
+secret:
+  mongoUsername: ""
+  mongoPassword: ""
+
+ingress:
+  enabled: true
+  className: nginx
+  host: notes.local
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: "/$2"
+    nginx.ingress.kubernetes.io/use-regex: "true"
+
+hpa:
+  auth:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 5
+    targetCPUUtilizationPercentage: 70
+  backend:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 70
+  frontend:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 70

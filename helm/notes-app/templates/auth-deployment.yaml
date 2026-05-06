@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "notes-app.fullname" . }}-auth-deploy
+  labels:
+    app: auth
+    {{- include "notes-app.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount.auth }}
+  selector:
+    matchLabels:
+      app: auth
+  template:
+    metadata:
+      labels:
+        app: auth
+    spec:
+      containers:
+      - name: auth
+        image: "{{ .Values.image.auth.repository }}:{{ .Values.image.auth.tag }}"
+        imagePullPolicy: {{ .Values.image.auth.pullPolicy }}
+        ports:
+        - containerPort: 4000
+        readinessProbe:
+          tcpSocket:
+            port: 4000
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 3
+        livenessProbe:
+          tcpSocket:
+            port: 4000
+          initialDelaySeconds: 30
+          periodSeconds: 15
+          timeoutSeconds: 3
+          failureThreshold: 5
+        resources:
+          requests:
+            cpu: "{{ .Values.resources.auth.requests.cpu }}"
+            memory: "{{ .Values.resources.auth.requests.memory }}"
+          limits:
+            cpu: "{{ .Values.resources.auth.limits.cpu }}"
+            memory: "{{ .Values.resources.auth.limits.memory }}"
+        envFrom:
+        - configMapRef:
+            name: {{ include "notes-app.fullname" . }}-config
+        - secretRef:
+            name: {{ include "notes-app.fullname" . }}-secret

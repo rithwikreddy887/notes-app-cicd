@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "notes-app.fullname" . }}-auth-service
+  labels:
+    app: auth
+    {{- include "notes-app.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  selector:
+    app: auth
+  ports:
+  - port: {{ .Values.service.auth.port }}
+    targetPort: {{ .Values.service.auth.targetPort }}
