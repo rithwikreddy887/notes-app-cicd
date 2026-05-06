@@ -45,19 +45,21 @@ jobs:
       - name: Test frontend file exists
         run: test -f frontend/index.html
 
+      # ---------- Docker Builds ----------
       - name: Build auth Docker image
-        run: docker build -t notes-auth:test ./auth
+        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/notes-auth:latest ./auth
 
       - name: Build backend Docker image
-        run: docker build -t notes-backend:test ./backend
+        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/notes-backend:latest ./backend
 
       - name: Build frontend Docker image
-        run: docker build -t notes-frontend:test ./frontend
+        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/notes-frontend:latest ./frontend
 
+      # ---------- Trivy Security Scanning ----------
       - name: Scan auth image with Trivy
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: notes-auth:test
+          image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/notes-auth:latest
           format: table
           exit-code: 1
           ignore-unfixed: true
@@ -66,7 +68,7 @@ jobs:
       - name: Scan backend image with Trivy
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: notes-backend:test
+          image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/notes-backend:latest
           format: table
           exit-code: 1
           ignore-unfixed: true
@@ -75,8 +77,25 @@ jobs:
       - name: Scan frontend image with Trivy
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: notes-frontend:test
+          image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/notes-frontend:latest
           format: table
           exit-code: 1
           ignore-unfixed: true
           severity: CRITICAL
+
+      # ---------- DockerHub Login ----------
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # ---------- Push Images ----------
+      - name: Push auth image
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/notes-auth:latest
+
+      - name: Push backend image
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/notes-backend:latest
+
+      - name: Push frontend image
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/notes-frontend:latest
