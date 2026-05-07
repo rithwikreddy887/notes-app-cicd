@@ -24,8 +24,6 @@ jobs:
 
       - name: Deploy Notes App using Helm
         run: |
-                - name: Deploy Notes App using Helm
-        run: |
           helm upgrade --install notes-app ./helm/notes-app \
             --set image.auth.repository=${{ vars.DOCKERHUB_USERNAME }}/${{ vars.AUTH_IMAGE }} \
             --set image.auth.tag=${{ vars.IMAGE_TAG }} \
@@ -35,6 +33,7 @@ jobs:
             --set image.frontend.tag=${{ vars.IMAGE_TAG }} \
             --set secret.mongoUsername=${{ secrets.MONGO_USERNAME }} \
             --set secret.mongoPassword=${{ secrets.MONGO_PASSWORD }}
+
       - name: Verify Helm release
         run: helm status notes-app
 
