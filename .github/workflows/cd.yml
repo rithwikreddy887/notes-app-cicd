@@ -31,8 +31,17 @@ jobs:
             --set image.backend.tag=${{ vars.IMAGE_TAG }} \
             --set image.frontend.repository=${{ vars.DOCKERHUB_USERNAME }}/${{ vars.FRONTEND_IMAGE }} \
             --set image.frontend.tag=${{ vars.IMAGE_TAG }} \
+            --set config.mongoHost=notes-app-notes-app-mongo-service \
             --set secret.mongoUsername=${{ secrets.MONGO_USERNAME }} \
-            --set secret.mongoPassword=${{ secrets.MONGO_PASSWORD }}
+            --set secret.mongoPassword=${{ secrets.MONGO_PASSWORD }} \
+            --set mongodb.env.rootUsername=${{ secrets.MONGO_USERNAME }} \
+            --set mongodb.env.rootPassword=${{ secrets.MONGO_PASSWORD }}
+
+      - name: Restart auth deployment
+        run: kubectl rollout restart deploy notes-app-notes-app-auth-deploy
+
+      - name: Restart backend deployment
+        run: kubectl rollout restart deploy notes-app-notes-app-backend-deploy
 
       - name: Verify Helm release
         run: helm status notes-app
