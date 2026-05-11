@@ -188,7 +188,7 @@ pipeline {
 
             echo 'Open Notes App using:'
 
-            echo 'kubectl port-forward -n ingress-nginx svc/ingress-nginx-controller 8080:80'
+            echo 'kubectl port-forward -n ingress-nginx svc/ingress-nginx-controller 8081:80'
         }
 
         failure {
