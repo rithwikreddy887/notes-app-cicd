@@ -21,14 +21,6 @@ pipeline {
             }
         }
 
-        stage('Start Minikube') {
-            steps {
-                sh '''
-                minikube start
-                minikube addons enable ingress
-                '''
-            }
-        }
 
         stage('Install Dependencies') {
             steps {
