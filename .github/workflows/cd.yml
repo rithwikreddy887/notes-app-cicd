@@ -16,6 +16,11 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v4
 
+      - name: Start Minikube
+        run: |
+          minikube start
+          minikube addons enable ingress
+
       - name: Verify kubectl access
         run: kubectl get nodes
 
@@ -37,14 +42,21 @@ jobs:
             --set mongodb.env.rootUsername=${{ secrets.MONGO_USERNAME }} \
             --set mongodb.env.rootPassword=${{ secrets.MONGO_PASSWORD }}
 
-      - name: Restart auth deployment
-        run: kubectl rollout restart deploy notes-app-notes-app-auth-deploy
-
-      - name: Restart backend deployment
-        run: kubectl rollout restart deploy notes-app-notes-app-backend-deploy
+      - name: Restart app deployments
+        run: |
+          kubectl rollout restart deploy notes-app-notes-app-auth-deploy || true
+          kubectl rollout restart deploy notes-app-notes-app-backend-deploy || true
+          kubectl rollout restart deploy notes-app-notes-app-frontend-deploy || true
 
       - name: Verify Helm release
         run: helm status notes-app
 
       - name: Verify deployed pods
         run: kubectl get pods
+
+      - name: Start Ingress Port Forward
+        run: |
+          pkill -f "kubectl port-forward" || true
+          nohup kubectl port-forward -n ingress-nginx svc/ingress-nginx-controller 8080:80 > portforward.log 2>&1 &
+          sleep 5
+          echo "Notes App available at: http://notes.local:8080"

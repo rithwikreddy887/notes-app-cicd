@@ -21,6 +21,15 @@ pipeline {
             }
         }
 
+        stage('Start Minikube') {
+            steps {
+                sh '''
+                minikube start
+                minikube addons enable ingress
+                '''
+            }
+        }
+
         stage('Install Dependencies') {
             steps {
                 dir('auth') {
@@ -109,9 +118,11 @@ pipeline {
 
         stage('Restart App Deployments') {
             steps {
-                sh 'kubectl rollout restart deploy notes-app-notes-app-auth-deploy || true'
-                sh 'kubectl rollout restart deploy notes-app-notes-app-backend-deploy || true'
-                sh 'kubectl rollout restart deploy notes-app-notes-app-frontend-deploy || true'
+                sh '''
+                kubectl rollout restart deploy notes-app-notes-app-auth-deploy || true
+                kubectl rollout restart deploy notes-app-notes-app-backend-deploy || true
+                kubectl rollout restart deploy notes-app-notes-app-frontend-deploy || true
+                '''
             }
         }
 
@@ -123,11 +134,23 @@ pipeline {
                 sh 'kubectl get ingress'
             }
         }
+
+        stage('Start Ingress Port Forward') {
+            steps {
+                sh '''
+                pkill -f "kubectl port-forward" || true
+                nohup kubectl port-forward -n ingress-nginx svc/ingress-nginx-controller 8080:80 > portforward.log 2>&1 &
+                sleep 5
+                echo "Notes App available at: http://notes.local:8080"
+                '''
+            }
+        }
     }
 
     post {
         success {
             echo 'Full Jenkins CI/CD pipeline completed successfully.'
+            echo 'Open: http://notes.local:8080'
         }
         failure {
             echo 'Jenkins CI/CD pipeline failed.'
